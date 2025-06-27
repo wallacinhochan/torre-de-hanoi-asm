@@ -1,77 +1,117 @@
 section .data
-    mover_disco     db "mova o disco "
-    disco           db "0"
-    da_torre        db " da torre "
-    origem_label    db "A"
-    para_torre      db " para torre "
-    destino_label   db "C", 10
-    len_total       equ $ - mover_disco
+    prompt db "Digite o numero de discos: ", 0
+    prompt_len equ $ - prompt
+    
+    mover_disco db "mova o disco "
+    disco db "0"
+    da_torre db " da torre "
+    origem db "A"
+    para_torre db " para torre "
+    destino db "C"
+    newline db 10
+    
+    len_mover equ $ - mover_disco
+
+section .bss
+    input resb 2
+    num_discos resb 1
 
 section .text
     global _start
 
 _start:
-    ; parâmetros iniciais para hanoi(3, 'A', 'C', 'B')
-    mov eax, 3          ; número de discos
-    mov ebx, 'A'        ; origem
-    mov ecx, 'C'        ; destino
-    mov edx, 'B'        ; auxiliar
+    ; Mostrar prompt
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, prompt
+    mov edx, prompt_len
+    int 0x80
+
+    ; Ler input
+    mov eax, 3
+    mov ebx, 0
+    mov ecx, input
+    mov edx, 2
+    int 0x80
+
+    ; Converter input para número
+    mov al, [input]
+    sub al, '0'
+    mov [num_discos], al
+
+    ; Configurar e chamar Hanoi
+    movzx eax, byte [num_discos]  ; Número de discos
+    mov ebx, 'A'  ; Origem
+    mov ecx, 'C'  ; Destino
+    mov edx, 'B'  ; Auxiliar
     call hanoi
 
-    ; saída do programa
+    ; Sair
     mov eax, 1
     xor ebx, ebx
     int 0x80
 
-; função hanoi(n, origem, destino, auxiliar)
 hanoi:
     cmp eax, 0
     je .fim
 
-    ; salva os registradores (estado atual)
     push eax
     push ebx
     push ecx
     push edx
 
-    ; primeira chamada: hanoi(n-1, origem, auxiliar, destino)
+    ; Primeira chamada recursiva
     dec eax
-    push ecx           ; salva destino
-    mov ecx, edx       ; ecx = auxiliar
-    pop edx            ; edx = destino original
+    push ecx
+    mov ecx, edx  ; Troca destino e auxiliar
+    pop edx
     call hanoi
 
-    ; restaura estado após primeira chamada
     pop edx
     pop ecx
     pop ebx
     pop eax
 
-    ; imprime o movimento
+    ; Configurar impressão
     push eax
     push ebx
     push ecx
-
+    push edx
+    
     add eax, '0'
     mov [disco], al
-    mov [origem_label], bl
-    mov [destino_label], cl
-    call imprimir_movimento
+    mov [origem], bl
+    mov [destino], cl
 
+    ; Imprimir movimento
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, mover_disco
+    mov edx, len_mover
+    int 0x80
+
+    ; Newline
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, newline
+    mov edx, 1
+    int 0x80
+
+    pop edx
     pop ecx
     pop ebx
     pop eax
 
-    ; segunda chamada: hanoi(n-1, auxiliar, destino, origem)
+    ; Segunda chamada recursiva
     push eax
     push ebx
     push ecx
     push edx
 
     dec eax
-    push edx
-    mov edx, ebx
-    pop ebx
+    push ebx
+    mov ebx, edx  ; Troca origem e auxiliar
+    pop edx
     call hanoi
 
     pop edx
@@ -80,13 +120,4 @@ hanoi:
     pop eax
 
 .fim:
-    ret
-
-; função para imprimir o movimento
-imprimir_movimento:
-    mov eax, 4
-    mov ebx, 1
-    mov ecx, mover_disco
-    mov edx, len_total
-    int 0x80
     ret
