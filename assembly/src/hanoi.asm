@@ -1,16 +1,19 @@
 section .data
-    prompt db "Digite o numero de discos: ", 0
-    prompt_len equ $ - prompt
-    
-    mover_disco db "mova o disco "
+    mensagem db "Digite o numero de discos[1-9]: ", 0
+    mensagem_len equ $ - mensagem
+
+    mover_disco db "Mova o disco "
     disco db "0"
-    da_torre db " da torre "
+    da_torre db " da Torre "
     origem db "A"
-    para_torre db " para torre "
+    para_torre db " para Torre "
     destino db "C"
     newline db 10
-    
+
     len_mover equ $ - mover_disco
+    
+    concluido db "Concluido!"
+    concluido_len equ $ - concluido
 
 section .bss
     input resb 2
@@ -23,8 +26,8 @@ _start:
     ; Mostrar prompt
     mov eax, 4
     mov ebx, 1
-    mov ecx, prompt
-    mov edx, prompt_len
+    mov ecx, mensagem
+    mov edx, mensagem_len
     int 0x80
 
     ; Ler input
@@ -45,6 +48,22 @@ _start:
     mov ecx, 'C'  ; Destino
     mov edx, 'B'  ; Auxiliar
     call hanoi
+
+    ; Mostrar mensagem de conclusão
+
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, concluido
+    mov edx, concluido_len
+    int 0x80
+
+    ;Newline
+
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, newline
+    mov edx, 1
+    int 0x80
 
     ; Sair
     mov eax, 1
@@ -77,7 +96,7 @@ hanoi:
     push ebx
     push ecx
     push edx
-    
+
     add eax, '0'
     mov [disco], al
     mov [origem], bl

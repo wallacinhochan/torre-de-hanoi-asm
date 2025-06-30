@@ -1,6 +1,6 @@
-#include "torreDeHanoi.h"  // Inclui o cabeçalho com a definição da classe
-#include <iostream>
-#include <string>
+#include"hanoi.h"  // Inclui o cabeçalho com a definição da classe
+#include<iostream>
+#include<string>
 
 using namespace std;
 
@@ -17,8 +17,8 @@ void torreDeHanoi::hanoi(int n, const std::string& source,
         hanoi(n-1, source, dest, auxiliary);
         
         // 2. Move o disco maior (n) da origem para o destino
-        cout << "O disco " << n << " foi movido da torre " << source 
-             << " para torre " << dest << endl;
+        cout << "O disco " << n << " foi movido da Torre " << source 
+             << " para Torre " << dest << endl;
         
         // 3. Move os n-1 discos da auxiliar para o destino (usando origem como auxiliar)
         hanoi(n-1, auxiliary, source, dest);
@@ -29,7 +29,7 @@ int main() {
     torreDeHanoi torre;  // Cria uma instância da classe torreDeHanoi
 
     int n;
-    cout << "Digite o número de discos: ";
+    cout << "Digite o número de discos[1-9]: ";
     cin >> n;  // Lê o número de discos do usuário
 
     // Define os nomes das torres como strings
@@ -39,6 +39,7 @@ int main() {
 
     // Chama o método para resolver o problema
     torre.hanoi(n, source, auxiliary, dest);
+    cout << "Concluído!\n";
 
     return 0;
 }
